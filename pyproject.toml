@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ScreenOps"
+version = "0.1.0"
+authors = [
+  { name="SysOps Toolkit Contributors" },
+]
+description = "Intelligent Screen Automation with OCR and Image Recognition"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pyautogui>=0.9.54",
+    "pynput>=1.7.6",
+    "Pillow>=10.0.0",
+    "json5>=0.9.14",
+    "loguru>=0.7.0",
+    "pyyaml>=6.0",
+    "pytesseract>=0.3.10",
+    "opencv-python>=4.8.0",
+    "numpy>=1.24.0",
+]
+
+[project.scripts]
+screenops = "ScreenOps.main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ScreenOps*"]
