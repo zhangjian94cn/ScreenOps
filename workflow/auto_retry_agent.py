@@ -5,6 +5,7 @@ Agent Error Auto-Retry Workflow
 自动点击 "Retry" 按钮。如果屏幕上没有该弹窗则不操作。
 
 使用方法：
+    cd /Volumes/home2/Code/script
     PYTHONPATH=. python3 ScreenOps/workflow/auto_retry_agent.py
     
 停止：按 Ctrl+C
@@ -17,20 +18,17 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from ScreenOps.ocr.clicker import OCRClicker
-from ScreenOps.image.matcher import ImageMatcher
+from ScreenOps.ocr.recognizer import OCRRecognizer
 from ScreenOps.core.mouse import Mouse
 
 # 配置
 CHECK_INTERVAL = 10  # 检查间隔（秒）
 ERROR_TEXT = "Agent terminated due to error"
 RETRY_TEXT = "Retry"
-ERROR_IMAGE = "ScreenOps/resources/icons/agent_error_dialog.png"
 
 def auto_retry():
     """主监控循环"""
-    ocr = OCRClicker()
-    img_matcher = ImageMatcher()
+    ocr = OCRRecognizer()
     
     logger.info("🚀 Agent Error Auto-Retry 已启动")
     logger.info(f"   检查间隔: {CHECK_INTERVAL}s")
@@ -39,32 +37,36 @@ def auto_retry():
     
     while True:
         try:
-            # 方法1: 尝试图像匹配（更可靠）
-            match = img_matcher.match(ERROR_IMAGE, threshold=0.7)
-            if match:
-                logger.warning("🔴 检测到错误弹窗 (图像匹配)")
-                # 点击 Retry 按钮 (尝试 OCR)
-                if ocr.click_text(RETRY_TEXT):
-                    logger.success("✅ 已点击 Retry 按钮")
-                else:
-                    # 如果 OCR 找不到，尝试在弹窗右侧点击（Retry 按钮通常在右侧）
-                    x = match[0] + match[2] - 50  # 弹窗右侧偏左一点
-                    y = match[1] + match[3] - 30  # 弹窗底部
-                    Mouse.click(x, y)
-                    logger.success(f"✅ 已点击坐标 ({x}, {y})")
-                time.sleep(2)  # 点击后等待一下
-                continue
+            # 使用 OCR 进行精确的文字匹配
+            results = ocr.recognize()
             
-            # 方法2: 尝试 OCR 文字匹配
-            if ocr.recognizer.find_text(ERROR_TEXT):
-                logger.warning("🔴 检测到错误弹窗 (OCR 文字)")
-                if ocr.click_text(RETRY_TEXT):
-                    logger.success("✅ 已点击 Retry 按钮")
-                time.sleep(2)
-                continue
+            # 检查是否有错误文字
+            error_found = False
+            retry_box = None
             
-            # 没有检测到错误
-            logger.debug(f"✓ 屏幕正常，{CHECK_INTERVAL}s 后再次检查...")
+            for item in results:
+                text = item.text.strip()
+                # 严格匹配错误文字（不是子串匹配）
+                if "Agent terminated" in text or "due to error" in text:
+                    error_found = True
+                    logger.warning(f"🔴 检测到错误文字: '{text}'")
+                
+                # 严格匹配 Retry 按钮（必须是独立的 Retry，不是文件名的一部分）
+                if text == "Retry" or text == "Retry ":
+                    retry_box = item
+                    logger.info(f"📍 找到 Retry 按钮位置: ({item.center[0]}, {item.center[1]})")
+            
+            if error_found and retry_box:
+                # 点击 Retry 按钮
+                x, y = retry_box.center
+                logger.success(f"✅ 正在点击 Retry 按钮 ({x}, {y})")
+                Mouse.click(x, y)
+                time.sleep(3)  # 点击后等待
+                continue
+            elif error_found:
+                logger.warning("⚠️ 检测到错误但未找到 Retry 按钮，等待下次检查")
+            else:
+                logger.debug(f"✓ 屏幕正常，{CHECK_INTERVAL}s 后再次检查...")
             
         except Exception as e:
             logger.error(f"检测过程出错: {e}")
