@@ -23,20 +23,25 @@
 
 ---
 
-## 🛠️ AI 生成脚本示例
-
-当你告诉 AI：“请帮我写一个 ScreenOps 脚本，打开浏览器搜索今日天气，并截图”，AI 生成的代码如下：
-
 ```python
-from ScreenOps import SmartLauncher, Keyboard, Screen
+from ScreenOps import ops
 
-# AI 只需编写 3 行逻辑代码
-launcher = SmartLauncher()
-launcher.find_and_click("浏览器")  # 智能唤起
-
-Keyboard.type("今日天气\n")   # 模拟输入
-Screen.save_screenshot("weather.png") # 结果交付
+# 像呼吸一样自然，AI 只需描述过程
+ops.open("浏览器") \
+   .type("今日天气", enter=True) \
+   .wait(2) \
+   .screenshot("weather.png")
 ```
+
+## 🧠 AI 提示指南 (AI Prompting Guide)
+
+为了让 AI 更好地为你生成脚本，你可以尝试以下提示词：
+
+> "请使用 ScreenOps 库帮我写一个 Python 脚本。
+> 流程是：先打开微信，搜索用户 '老婆'，然后发送内容 '今晚回家吃饭'。
+> 请使用 `from ScreenOps import ops` 的流式接口。"
+
+AI 将会精准输出基于 ScreenOps 的独立 Python 脚本。
 
 ---
 
