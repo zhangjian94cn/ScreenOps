@@ -1,0 +1,36 @@
+# ScreenOps 全局配置
+# 此文件用于管理常见应用的别名、默认超时等通用设置
+
+aliases:
+  微信:
+    - 微信
+    - WeChat
+    - We Chat
+  浏览器:
+    - Chrome
+    - Safari
+    - Edge
+    - Browser
+    - 浏览器
+  终端:
+    - Terminal
+    - iTerm
+    - 终端
+  飞书:
+    - 飞书
+    - Lark
+  钉钉:
+    - 钉钉
+    - DingTalk
+
+defaults:
+  click_timeout: 5.0
+  wait_timeout: 20.0
+  retry_interval: 0.5
+  ocr_lang: chi_sim+eng
+
+credentials:
+  # 可以在此处配置常用的凭据占位符
+  # 实际值应通过环境变量传入 (如 env:LOGIN_PASSWORD)
+  username: ""
+  password: "env:LOGIN_PASSWORD"
