@@ -15,6 +15,7 @@ from ScreenOps.automation.watcher import ScreenWatcher
 from ScreenOps.auto_clicker.clicker import AutoClicker
 from ScreenOps.auto_clicker.hotkey import HotkeyListener
 from ScreenOps.core.launcher import SmartLauncher
+from ScreenOps.codegen.generator import CodeGenerator
 
 def main():
     parser = argparse.ArgumentParser(description="ScreenOps - 智能屏幕自动化工具")
@@ -58,6 +59,11 @@ def main():
     # 6. 智能点击
     smart_p = subparsers.add_parser('smart-click', help='智能寻找并点击(描述文字或搜索)')
     smart_p.add_argument('desc', help='描述文字(如: 微信)')
+
+    # 7. 导出脚本
+    export_p = subparsers.add_parser('export-script', help='将录制文件转换为 Python 脚本')
+    export_p.add_argument('input', help='录制文件 (json5)')
+    export_p.add_argument('-o', '--output', default='generated_script.py', help='输出文件 (.py)')
     
     args = parser.parse_args()
 
@@ -123,6 +129,10 @@ def main():
     elif args.command == 'smart-click':
         launcher = SmartLauncher()
         launcher.find_and_click(args.desc)
+
+    elif args.command == 'export-script':
+        gen = CodeGenerator(args.input)
+        gen.generate(args.output)
 
     else:
         parser.print_help()
