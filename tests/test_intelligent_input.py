@@ -38,12 +38,14 @@ rules:
     params:
       text: "{{sudo_pass}}\n"
 """
-    rule_file = "ScreenOps/workflows/examples/terminal_test.yaml"
-    with open(rule_file, "w") as f:
+    import tempfile
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
         f.write(rule_content)
+        rule_file = f.name
     
     logger.info(f"开启智能终端自动化监控 (测试用)...")
     watcher = ScreenWatcher(rule_file, interval=1.0)
+
     
     print("\n--- 智能输入测试说明 ---")
     print("1. 脚本正在监控屏幕。")
